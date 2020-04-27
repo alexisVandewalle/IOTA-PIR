@@ -4,8 +4,8 @@ import random as rd
 import numpy as np
 from user import *
 from transaction import *
+from settings import parameters
 
-alpha = 0.001
 
 
 class Tangle:
@@ -14,20 +14,20 @@ class Tangle:
     des transactions
     """
     
-    def __init__(self, users,h):
+    def __init__(self, users):
         """
         Cette fonction créé le tangle en créant une transaction racine
         """
-        self.genesis = Genesis(MasterUser(),h)
+        self.genesis = Genesis(MasterUser())
         self.G=nx.DiGraph()
         self.G.add_node(self.genesis)
         self.graph_path=nx.DiGraph()
         self.graph_path.add_node(self.genesis)
         self.users = users
-        self.h = h
+
         
     def copy(tangle,users):
-        new = Tangle(users,tangle.h)
+        new = Tangle(users)
         new.genesis = tangle.genesis
         new.G = tangle.G.copy()
         new.graph_path = tangle.graph_path.copy()
@@ -151,8 +151,8 @@ class Tangle:
             list_weight=[0]
             sum=0
             for neighbor in list_neighbor:
-                list_weight.append(np.exp(alpha*neighbor.cumulative_weight)+sum)
-                sum += np.exp(alpha*neighbor.cumulative_weight)
+                list_weight.append(np.exp(parameters['alpha']*neighbor.cumulative_weight)+sum)
+                sum += np.exp(parameters['alpha']*neighbor.cumulative_weight)
                 
             list_weight = np.array(list_weight)
             list_weight=1/list_weight[-1]*list_weight
@@ -186,7 +186,7 @@ class Tangle:
                     break
     
     
-    def simulate_one_step(self,h,actual_time,rate,pas=1,algo="BRW",n_branche=0):
+    def simulate_one_step(self,actual_time,n_branche=0):
         """
         Cette fonction simule un pas de temps de la simulation
         actual_time: le temps actuel de la simulation
@@ -196,14 +196,14 @@ class Tangle:
         
         self.actualise_tips(actual_time)
         self.computeGlobalWeight(actual_time)
-        number_of_transactions = np.random.poisson(rate*pas)
-        transactions = [Transaction(actual_time,rd.sample(self.users,2),h,rd.random()*10,n_branche) for i in range(number_of_transactions)]
+        number_of_transactions = np.random.poisson(parameters['rate']*parameters['pas'])
+        transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*10,n_branche) for i in range(number_of_transactions)]
         for t in transactions:
-            if(algo=="BRW"):
+            if(parameters['algo']=="BRW"):
                 t1=self.BRW(actual_time)
                 t2=self.BRW(actual_time)
         
-            elif(algo=="URW"):
+            elif(parameters['algo']=="URW"):
                 t1=self.URW(actual_time)
                 t2=self.URW(actual_time)
     
@@ -230,27 +230,29 @@ class Tangle:
         """
         affiche l'ensemble du tangle.
         """
-        self.actualise_tips(total_time+2*self.h)
-        self.computeGlobalWeight(total_time+2*self.h)
+        self.actualise_tips(parameters['total time']+2*parameters['h'])
+        self.computeGlobalWeight(parameters['total time']+2*parameters['h'])
         position=dict()
         size=[]
         color=[]
         count=0
-        offset=1
-        previous_created_time=0
         coef = 1/self.genesis.cumulative_weight*600
+
         for node in self.G:
             if(node == self.genesis):
-                position[node]=(node.created_time,(self.rate*self.pas)/2)
+                position[node]=(node.created_time,(parameters['rate']*parameters['pas'])/2)
+
             else:
-                position[node]=(node.created_time,count%(self.rate*self.pas)+node.n_branche*self.rate*self.pas)
+                position[node]=(node.created_time, count%(parameters['rate']*parameters['pas'])+node.n_branche*parameters['rate']*parameters['pas'])
+
             size.append(node.cumulative_weight*coef)
             if node.tips:
                 color.append('red')
             else:
                 color.append('blue')
+
             count+=1
-            previous_created_time=node.created_time
+
         nx.draw_networkx(self.G,position,node_size=size,node_color=color,node_shape='s')
         plt.xlabel("time")
         plt.grid(True, linestyle='--')

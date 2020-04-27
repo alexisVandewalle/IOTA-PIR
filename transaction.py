@@ -1,10 +1,10 @@
-
+from settings import parameters
 
 class Transaction:
     """Cette classe permet de definir un objet transaction, c'est à dire un noeud
     du tangle"""
     
-    def __init__(self,created_time,list_s_r,h, montant=0,n_branche=0):
+    def __init__(self,created_time,list_s_r, montant=0,n_branche=0):
         """
         created_time: le temps auquel est cree la transaction
         visible:      permet de dire si la transaction est visible par l'ensemble
@@ -18,7 +18,6 @@ class Transaction:
         self.created_time=created_time
         self.tips=True
         self.n_branche = n_branche
-        self.h = h
         
     def actualise_wallet(self):
         self.sender.wallet -= self.montant
@@ -32,7 +31,7 @@ class Transaction:
         return: True si la transaction est visible, False sinon
         """
 
-        if(self.created_time<time-self.h):
+        if(self.created_time<time-parameters['h']):
             return True
         else:
             return False
@@ -46,5 +45,5 @@ class Transaction:
         
 
 class Genesis(Transaction):
-    def __init__(self,masterUser,h):
-        Transaction.__init__(self,-2*h,[masterUser,masterUser],h,0)
+    def __init__(self,masterUser):
+        Transaction.__init__(self,-2*parameters['h'],[masterUser,masterUser])

@@ -1,54 +1,48 @@
 from user import *
 from tangle import *
-from transaction import *
+from transaction import parameters
 
 #class
 class Simulation:
-    def __init__(self, pas, total_time, rate, h, nb_users=100, algo="BRW"):
-        self.pas = pas
-        self.total_time = total_time
-        self.algo = algo
-        self.users = [User(i+1,100) for i in range(nb_users)]
-        self.tangle = Tangle(self.users, h)
-        self.rate = rate
-        self.h = h
+    def __init__(self):
+        self.users = [User(i+1,100) for i in range(parameters["nb users"])]
+        self.tangle = Tangle(self.users)
+
         
     def simulate(self):
-        number_of_step = int(self.total_time/self.pas)
+        number_of_step = int(parameters["total time"]/parameters['pas'])
         for i in range(number_of_step):
-            self.tangle.simulate_one_step(self.h, self.pas*(i+1),self.pas,self.algo,self.rate)
+            self.tangle.simulate_one_step(parameters['pas']*(i+1))
         self.tangle.display()
 
-        
+
 class SimulationSplit(Simulation):
-    
-    def __init__(self, pas, total_time, rate, h,partition_time, coef_div=1/2, nb_users=100, algo="BRW"):
-        Simulation.__init__(self, pas, total_time, rate, h, nb_users, algo)
-        self.partition_time = partition_time
-        self.coef_div = coef_div
-        
-        
-    def simulate_split(self,join_time):
-        number_of_step=int(self.total_time/self.pas)
-        for i in range(int(self.partition_time/self.pas)):
-            self.tangle.simulate_one_step(self.h, self.pas*(i+1),self.rate,self.pas,self.algo)
+
+    def __init__(self):
+        Simulation.__init__(self)
+
+
+    def simulate(self):
+        number_of_step=int(parameters['total time']/parameters['pas'])
+        for i in range(int(parameters['partition time']/parameters['pas'])):
+            self.tangle.simulate_one_step(parameters['pas']*(i+1))
         
         tips = self.tangle.get_all_tips()
-        tangle1, tangle2 = Tangle.split(self.tangle,self.users[0:int(len(self.users)*self.coef_div)],self.users[int(len(self.users)*self.coef_div):])
+        tangle1, tangle2 = Tangle.split(self.tangle,self.users[0:int(len(self.users)*parameters['coef div'])],self.users[int(len(self.users)*parameters['coef div']):])
 
-        self.rate *= self.coef_div 
-        for i in range(int(self.partition_time/self.pas),int(join_time/self.pas)):
-            tangle1.simulate_one_step(self.h, self.pas*(i+1),self.rate,self.pas,self.algo,1)
+        parameters['rate'] *= parameters['coef div']
+        for i in range(int(parameters['partition time']/parameters['pas']),int(parameters['join time']/parameters['pas'])):
+            tangle1.simulate_one_step(parameters['pas']*(i+1),1)
         
         tangle2.set_all_tips(tips)
-        self.rate = self.rate/self.coef_div*(1-self.coef_div)
-        for i in range(int(self.partition_time/self.pas),int(join_time/self.pas)):    
-            tangle2.simulate_one_step(self.h, self.pas*(i+1),self.rate,self.pas,self.algo,-1)
+        parameters['rate'] = parameters['rate']/parameters['coef div']*(1-parameters['coef div'])
+        for i in range(int(parameters['partition time']/parameters['pas']),int(parameters['join time']/parameters['pas'])):
+            tangle2.simulate_one_step(parameters['pas']*(i+1),-1)
         
         self.tangle = Tangle.join(tangle1,tangle2)
 
-        for i in range(int(join_time/self.pas),number_of_step):
-            self.tangle.simulate_one_step(self.h, self.pas*(i+1),self.rate,self.pas,self.algo)
+        for i in range(int(parameters['join time']/parameters['pas']),number_of_step):
+            self.tangle.simulate_one_step(parameters['pas']*(i+1))
             
         self.tangle.display()
         
