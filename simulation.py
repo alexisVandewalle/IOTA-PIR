@@ -40,7 +40,7 @@ class SimulationSplit(Simulation):
             tangle2.simulate_one_step(parameters['pas']*(i+1),-1)
         
         self.tangle = Tangle.join(tangle1,tangle2)
-
+        parameters['rate'] = parameters['rate'] / (1 - parameters['coef div'])
         for i in range(int(parameters['join time']/parameters['pas']),number_of_step):
             self.tangle.simulate_one_step(parameters['pas']*(i+1))
             
