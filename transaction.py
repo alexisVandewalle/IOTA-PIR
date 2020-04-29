@@ -16,7 +16,6 @@ class Transaction:
         self.montant = montant
         self.cumulative_weight=1
         self.created_time=created_time
-        self.tips=True
         self.n_branche = n_branche
         
     def actualise_wallet(self):

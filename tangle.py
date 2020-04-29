@@ -25,7 +25,15 @@ class Tangle:
         self.graph_path.add_node(self.genesis)
         self.users = users
 
-        
+
+    def is_tips(self,node,actual_time):
+        list_neighbors=list(self.graph_path[node])
+        for neighbor in list_neighbors:
+            if neighbor.is_visible(actual_time):
+                return False
+        return True
+
+
     def copy(tangle,users):
         new = Tangle(users)
         new.genesis = tangle.genesis
@@ -33,25 +41,8 @@ class Tangle:
         new.graph_path = tangle.graph_path.copy()
         new.users = users
         return new
-        
-    def get_all_tips(self):
-        """
-        Cette fonction permet de récupérer toutes les tips du tangle
-        return: la list des tips
-        """
-        tips_list = []
-        node_list = list(self.G.nodes())
-        for node in node_list:
-            if node.tips==True:
-                tips_list.append(node)
-        return tips_list
-        
-    def set_all_tips(self,tips):
-        for node in self.G.nodes:
-            if node in tips:
-                node.tips = True
-        
-    
+
+
     def get_visible_tips(self,actual_time):
         """
         Cette fonction permet de récupérer tous les tips visible à un instant
@@ -62,7 +53,7 @@ class Tangle:
         
         tips_list=[]
         for node in self.G:
-            if node.tips==True and node.is_visible(actual_time):
+            if self.is_tips(node,actual_time):
                 tips_list.append(node)
         return tips_list
     
@@ -126,7 +117,7 @@ class Tangle:
         """
         
         current_node=self.genesis
-        while not current_node.tips:
+        while not self.is_tips(current_node,actual_time):
             list_neighbor=self.get_visible_neighbors(current_node,actual_time)
             N=len(list_neighbor)
             rd_index=rd.randint(0,N-1)
@@ -146,7 +137,7 @@ class Tangle:
         
         current_node=self.genesis
 
-        while not current_node.tips:
+        while not self.is_tips(current_node,actual_time):
             list_neighbor=self.get_visible_neighbors(current_node,actual_time)
             list_weight=[0]
             sum=0
@@ -168,24 +159,6 @@ class Tangle:
         return current_node
 
     
-    def actualise_tips(self,actual_time):
-        """
-        Cette fonction permet d'actualiser les transactions en settant le
-        parametre tips a True ou False selon que le noeud soit visible ou pas.
-        Elle actualise egalement le parametre visible des noeuds si nécessaire.
-        actual_time: le temps actuel de la simulation
-        """
-        
-        list_tips=self.get_all_tips()
-        for tips in list_tips:
-            list_neighbor=list(self.graph_path[tips])
-            for neighbor in list_neighbor:
-                if neighbor.is_visible(actual_time):
-                    tips.actualise_wallet()
-                    tips.tips = False
-                    break
-    
-    
     def simulate_one_step(self,actual_time,n_branche=0):
         """
         Cette fonction simule un pas de temps de la simulation
@@ -193,8 +166,7 @@ class Tangle:
         pas        : le pas de la simulation
         algo       : l'algorithme choisi valant "BRW" ou "URW" 
         """
-        
-        self.actualise_tips(actual_time)
+
         self.computeGlobalWeight(actual_time)
         number_of_transactions = np.random.poisson(parameters['rate']*parameters['pas'])
         transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*10,n_branche) for i in range(number_of_transactions)]
@@ -230,7 +202,6 @@ class Tangle:
         """
         affiche l'ensemble du tangle.
         """
-        self.actualise_tips(parameters['total time']+2*parameters['h'])
         self.computeGlobalWeight(parameters['total time']+2*parameters['h'])
         position=dict()
         size=[]
@@ -246,7 +217,7 @@ class Tangle:
                 position[node]=(node.created_time, count%(parameters['rate']*parameters['pas'])+node.n_branche*parameters['rate']*parameters['pas'])
 
             size.append(node.cumulative_weight*coef)
-            if node.tips:
+            if self.is_tips(node,parameters['total time']+2*parameters['h']):
                 color.append('red')
             else:
                 color.append('blue')

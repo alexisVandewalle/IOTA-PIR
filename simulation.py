@@ -26,15 +26,14 @@ class SimulationSplit(Simulation):
         number_of_step=int(parameters['total time']/parameters['pas'])
         for i in range(int(parameters['partition time']/parameters['pas'])):
             self.tangle.simulate_one_step(parameters['pas']*(i+1))
-        
-        tips = self.tangle.get_all_tips()
+
         tangle1, tangle2 = Tangle.split(self.tangle,self.users[0:int(len(self.users)*parameters['coef div'])],self.users[int(len(self.users)*parameters['coef div']):])
 
         parameters['rate'] *= parameters['coef div']
         for i in range(int(parameters['partition time']/parameters['pas']),int(parameters['join time']/parameters['pas'])):
             tangle1.simulate_one_step(parameters['pas']*(i+1),1)
         
-        tangle2.set_all_tips(tips)
+
         parameters['rate'] = parameters['rate']/parameters['coef div']*(1-parameters['coef div'])
         for i in range(int(parameters['partition time']/parameters['pas']),int(parameters['join time']/parameters['pas'])):
             tangle2.simulate_one_step(parameters['pas']*(i+1),-1)
