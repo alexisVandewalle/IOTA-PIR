@@ -61,7 +61,7 @@ class Tangle:
     def get_visible_neighbors(self,node, actual_time):
         """
         Cette fonction permet de récupérer les voisins visible d'un noeud
-        actual_time: letemps actuel de la simulation
+        actual_time: le temps actuel de la simulation
         node       : le noeud considere
         return     : la liste des voisins visibles par ce noeud
         """
@@ -166,8 +166,9 @@ class Tangle:
         pas        : le pas de la simulation
         algo       : l'algorithme choisi valant "BRW" ou "URW" 
         """
+        if(parameters['algo']=="BRW"):
+            self.computeGlobalWeight(actual_time)
 
-        self.computeGlobalWeight(actual_time)
         number_of_transactions = np.random.poisson(parameters['rate']*parameters['pas'])
         transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*10,n_branche) for i in range(number_of_transactions)]
         for t in transactions:
