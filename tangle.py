@@ -34,6 +34,29 @@ class Tangle:
         return True
 
 
+    def remove_branch(self, node,actual_time):
+
+        node_to_visit = [node]
+        visited_node = dict()
+        visited_node[node] = None
+
+        while len(node_to_visit) != 0:
+            current_node = node_to_visit.pop(0)
+            list_neighbor = self.get_visible_neighbors(current_node, actual_time+2*parameters['h'])
+            for neighbor in list_neighbor:
+                if neighbor in visited_node:
+                    pass
+                else:
+                    node_to_visit.append(neighbor)
+                    visited_node[neighbor] = None
+        self.G.remove_nodes_from(visited_node)
+        self.graph_path.remove_nodes_from(visited_node)
+
+    def check_transactions(self, time):
+        for node in self.G:
+            if node.check_transaction(time)==False:
+                self.remove_branch(node)
+
     def copy(tangle,users):
         new = Tangle(users)
         new.genesis = tangle.genesis
@@ -166,6 +189,9 @@ class Tangle:
         pas        : le pas de la simulation
         algo       : l'algorithme choisi valant "BRW" ou "URW" 
         """
+
+        self.check_transactions(actual_time-parameters['h'])
+
         if(parameters['algo']=="BRW"):
             self.computeGlobalWeight(actual_time)
 
@@ -179,7 +205,8 @@ class Tangle:
             elif(parameters['algo']=="URW"):
                 t1=self.URW(actual_time)
                 t2=self.URW(actual_time)
-    
+
+            t.actualise_wallet(actual_time)
             self.G.add_node(t)
             self.graph_path.add_node(t)
             self.G.add_edge(t,t1)

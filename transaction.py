@@ -1,5 +1,6 @@
 from settings import parameters
 
+
 class Transaction:
     """Cette classe permet de definir un objet transaction, c'est à dire un noeud
     du tangle"""
@@ -15,13 +16,28 @@ class Transaction:
         self.receiver = list_s_r[1]
         self.montant = montant
         self.cumulative_weight=1
-        self.created_time=created_time
+        self.created_time = created_time
         self.n_branche = n_branche
         
-    def actualise_wallet(self):
-        self.sender.wallet -= self.montant
-        self.receiver.wallet += self.montant
-    
+    def actualise_wallet(self, actual_time):
+        swallet = self.sender.wallet[-1][1]
+        rwallet = self.receiver.wallet[-1][1]
+        self.sender.wallet.append((actual_time, swallet - self.montant))
+        self.receiver.wallet.append((actual_time, rwallet + self.montant))
+
+
+    def check_transaction(self, time):
+        i = 0
+        while True:
+            i -= 1
+            if i > -len(self.sender.wallet) or self.sender.wallet[i][0] < time:
+                break
+
+        if self.sender.wallet[i][1] < 0:
+            return False
+        return True
+
+
     def is_visible(self,time):
         """
         Cette fonction permet de savoir si une transaction est visible a un
@@ -46,3 +62,4 @@ class Transaction:
 class Genesis(Transaction):
     def __init__(self,masterUser):
         Transaction.__init__(self,-2*parameters['h'],[masterUser,masterUser])
+        # self.actualise_wallet(-2*parameters['h'])
