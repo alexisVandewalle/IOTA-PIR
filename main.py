@@ -7,7 +7,7 @@ from simulation import *
 simulation = SimulationSplit()
 
 duree=time()
-simulation.simulate()
+tangle = simulation.simulate()
 duree=time()-duree
 
 print("duree de la simulation:{}".format(duree))

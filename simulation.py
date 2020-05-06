@@ -5,7 +5,7 @@ from transaction import parameters
 #class
 class Simulation:
     def __init__(self):
-        self.users = [User(i+1,100) for i in range(parameters["nb users"])]
+        self.users = [User(i+1,10) for i in range(parameters["nb users"])]
         self.tangle = Tangle(self.users)
 
         
@@ -14,6 +14,8 @@ class Simulation:
         for i in range(number_of_step):
             self.tangle.simulate_one_step(parameters['pas']*(i+1))
         self.tangle.display()
+        
+        return self.tangle
 
 
 class SimulationSplit(Simulation):

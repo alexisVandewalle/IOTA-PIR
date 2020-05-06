@@ -42,20 +42,31 @@ class Tangle:
 
         while len(node_to_visit) != 0:
             current_node = node_to_visit.pop(0)
-            list_neighbor = self.get_visible_neighbors(current_node, actual_time+2*parameters['h'])
+            list_neighbor = self.graph_path[current_node]
             for neighbor in list_neighbor:
                 if neighbor in visited_node:
                     pass
                 else:
                     node_to_visit.append(neighbor)
                     visited_node[neighbor] = None
+                    neighbor.sender.wallet.append((actual_time,neighbor.sender.wallet[-1][1]+neighbor.montant))
+                    neighbor.receiver.wallet.append((actual_time,neighbor.receiver.wallet[-1][1]-neighbor.montant))
+
         self.G.remove_nodes_from(visited_node)
         self.graph_path.remove_nodes_from(visited_node)
+        
+
 
     def check_transactions(self, time):
+        wrong_node = []
         for node in self.G:
-            if node.check_transaction(time)==False:
-                self.remove_branch(node)
+            if node.check_transaction(time) == False:
+                wrong_node.append(node)
+
+
+        for node in wrong_node:
+            if node in self.G: #le fait d'enlever des branches peut enlever d'autres noeuds
+                self.remove_branch(node,time)
 
     def copy(tangle,users):
         new = Tangle(users)
