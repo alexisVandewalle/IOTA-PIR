@@ -205,7 +205,7 @@ class Tangle:
             self.computeGlobalWeight(actual_time)
 
         number_of_transactions = np.random.poisson(parameters['rate']*parameters['pas'])
-        transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*10,n_branche) for i in range(number_of_transactions)]
+        transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*parameters['mean cost'],n_branche) for i in range(number_of_transactions)]
         for t in transactions:
             while True:
                 if(parameters['algo']=="BRW"):

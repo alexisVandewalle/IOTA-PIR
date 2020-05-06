@@ -5,7 +5,7 @@ from transaction import parameters
 #class
 class Simulation:
     def __init__(self):
-        self.users = [User(i+1,10) for i in range(parameters["nb users"])]
+        self.users = [User(i+1,parameters['init wallet']) for i in range(parameters["nb users"])]
         self.tangle = Tangle(self.users)
 
         

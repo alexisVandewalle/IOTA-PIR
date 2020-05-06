@@ -8,6 +8,8 @@ parameters_classic = {
     "total time":50,
     "algo":"BRW",
     "nb user":100,
+    "init wallet":50,
+    "mean cost":10
 }
 
 parameters_split = {
@@ -21,6 +23,8 @@ parameters_split = {
     "nb users":10,
     "partition time":10,
     "join time":30,
+    "init wallet":50,
+    "mean cost":10
 }
 
 if simulation_type == "split":
