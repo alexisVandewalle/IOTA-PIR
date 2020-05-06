@@ -18,7 +18,7 @@ parameters_split = {
     "total time": 50,
     "coef div":0.3,
     "algo":"BRW",
-    "nb users":100,
+    "nb users":10,
     "partition time":10,
     "join time":30,
 }

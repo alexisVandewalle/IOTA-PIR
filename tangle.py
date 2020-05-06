@@ -51,7 +51,7 @@ class Tangle:
                     visited_node[neighbor] = None
                     neighbor.sender.wallet.append((actual_time,neighbor.sender.wallet[-1][1]+neighbor.montant))
                     neighbor.receiver.wallet.append((actual_time,neighbor.receiver.wallet[-1][1]-neighbor.montant))
-
+        
         self.G.remove_nodes_from(visited_node)
         self.graph_path.remove_nodes_from(visited_node)
         
@@ -62,7 +62,6 @@ class Tangle:
         for node in self.G:
             if node.check_transaction(time) == False:
                 wrong_node.append(node)
-
 
         for node in wrong_node:
             if node in self.G: #le fait d'enlever des branches peut enlever d'autres noeuds
@@ -201,7 +200,6 @@ class Tangle:
         algo       : l'algorithme choisi valant "BRW" ou "URW" 
         """
 
-        self.check_transactions(actual_time-parameters['h'])
 
         if(parameters['algo']=="BRW"):
             self.computeGlobalWeight(actual_time)
@@ -209,15 +207,20 @@ class Tangle:
         number_of_transactions = np.random.poisson(parameters['rate']*parameters['pas'])
         transactions = [Transaction(actual_time,rd.sample(self.users,2),rd.random()*10,n_branche) for i in range(number_of_transactions)]
         for t in transactions:
-            if(parameters['algo']=="BRW"):
-                t1=self.BRW(actual_time)
-                t2=self.BRW(actual_time)
-        
-            elif(parameters['algo']=="URW"):
-                t1=self.URW(actual_time)
-                t2=self.URW(actual_time)
+            while True:
+                if(parameters['algo']=="BRW"):
+                    t1=self.BRW(actual_time)
+                    t2=self.BRW(actual_time)
+                    
+            
+                elif(parameters['algo']=="URW"):
+                    t1=self.URW(actual_time)
+                    t2=self.URW(actual_time)
 
-            t.actualise_wallet(actual_time)
+                if t1.check(actual_time) and t2.check(actual_time):
+                    break
+
+
             self.G.add_node(t)
             self.graph_path.add_node(t)
             self.G.add_edge(t,t1)

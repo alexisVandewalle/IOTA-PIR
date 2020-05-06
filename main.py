@@ -14,3 +14,4 @@ print("duree de la simulation:{}".format(duree))
 
 
 plt.show()
+

@@ -18,22 +18,17 @@ class Transaction:
         self.cumulative_weight=1
         self.created_time = created_time
         self.n_branche = n_branche
+        self.is_check = False
         
-    def actualise_wallet(self, actual_time):
-        swallet = self.sender.wallet[-1][1]
-        rwallet = self.receiver.wallet[-1][1]
-        self.sender.wallet.append((actual_time, swallet - self.montant))
-        self.receiver.wallet.append((actual_time, rwallet + self.montant))
-
-
-    def check_transaction(self, time):
-        i = 0
-        while True:
-            i -= 1
-            if i > -len(self.sender.wallet) or self.sender.wallet[i][0] < time:
-                break
-
-        if self.sender.wallet[i][1] < 0:
+    def check(self, actual_time):
+        if not self.is_check:
+            swallet = self.sender.wallet[-1][1]
+            rwallet = self.receiver.wallet[-1][1]
+            if swallet - self.montant >= 0:
+                self.sender.wallet.append((actual_time, swallet - self.montant))
+                self.receiver.wallet.append((actual_time, rwallet + self.montant))
+                self.is_check = True
+                return True
             return False
         return True
 
