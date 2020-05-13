@@ -219,6 +219,8 @@ class Tangle:
 
                 if Transaction.check(t1,t2,self):
                     break
+                else:
+                    print("arbre non valide")
 
             self.G.add_node(t)
             self.graph_path.add_node(t)
@@ -239,16 +241,28 @@ class Tangle:
         tangle1.graph_path.add_edges_from(tangle2.graph_path.edges)
         return tangle1
 
+    def compute_confidence_rate(self,actual_time):
+        for transaction in self.G:
+            transaction.confidence_rate=0
+
+        for i in range(100):
+            t = self.BRW(actual_time)
+            for transaction in self.G:
+                if nx.has_path(self.G,t,transaction):
+                    transaction.confidence_rate += 1/100
+
     def display(self):
         """
         affiche l'ensemble du tangle.
         """
         self.computeGlobalWeight(parameters['total time']+2*parameters['h'])
+        self.compute_confidence_rate(parameters['total time']+2*parameters['h'])
         position=dict()
         size=[]
         color=[]
         count=0
-        coef = 1/self.genesis.cumulative_weight*600
+        #coef = 1/self.genesis.cumulative_weight*600
+        coef = 2*100
 
         for node in self.G:
             if(node == self.genesis):
@@ -257,7 +271,7 @@ class Tangle:
             else:
                 position[node]=(node.created_time, count%(parameters['rate']*parameters['pas'])+node.n_branche*parameters['rate']*parameters['pas'])
 
-            size.append(node.cumulative_weight*coef)
+            size.append(node.confidence_rate*coef)
             if self.is_tips(node,parameters['total time']+2*parameters['h']):
                 color.append('red')
             else:

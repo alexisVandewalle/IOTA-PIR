@@ -17,6 +17,7 @@ class Transaction:
         self.cumulative_weight=1
         self.created_time = created_time
         self.n_branche = n_branche
+        self.confidence_rate =0
 
     def check(t1,t2, tangle):
         node_to_visit = [t1,t2]
@@ -60,7 +61,7 @@ class Transaction:
         Cette fonction retourne une chaine de caracteres contenant le poids 
         cumule de la transaction
         """
-        return "{}".format(self.cumulative_weight)
+        return "{:.2f}".format(self.confidence_rate)
         
 
 class Genesis(Transaction):
