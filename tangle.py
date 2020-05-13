@@ -272,13 +272,10 @@ class Tangle:
                 position[node]=(node.created_time, count%(parameters['rate']*parameters['pas'])+node.n_branche*parameters['rate']*parameters['pas'])
 
             size.append(node.confidence_rate*coef)
-            if self.is_tips(node,parameters['total time']+2*parameters['h']):
-                color.append('red')
-            else:
-                color.append('blue')
+            color.append(node.confidence_rate)
 
             count+=1
 
-        nx.draw_networkx(self.G,position,node_size=size,node_color=color,node_shape='s')
+        nx.draw_networkx(self.G,position,node_size=size,node_color=color,node_shape='s',vmin=0,vmax=1)
         plt.xlabel("time")
         plt.grid(True, linestyle='--')

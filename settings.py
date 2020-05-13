@@ -17,7 +17,7 @@ parameters_split = {
     "rate": 3,
     "alpha": 0.001,
     "pas": 1,
-    "total time": 20,
+    "total time": 50,
     "coef div":0.3,
     "algo":"BRW",
     "nb users":10,
