@@ -14,7 +14,7 @@ parameters_classic = {
 
 parameters_split = {
     "h": 1,
-    "rate": 10,
+    "rate": 5,
     "alpha": 0.001,
     "pas": 0.5,
     "total time": 50,

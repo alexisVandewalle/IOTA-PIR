@@ -217,9 +217,8 @@ class Tangle:
                     t1=self.URW(actual_time)
                     t2=self.URW(actual_time)
 
-                if t1.check(actual_time) and t2.check(actual_time):
+                if Transaction.check(t1,t2,self):
                     break
-
 
             self.G.add_node(t)
             self.graph_path.add_node(t)

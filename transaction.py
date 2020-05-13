@@ -1,6 +1,5 @@
 from settings import parameters
 
-
 class Transaction:
     """Cette classe permet de definir un objet transaction, c'est à dire un noeud
     du tangle"""
@@ -18,18 +17,28 @@ class Transaction:
         self.cumulative_weight=1
         self.created_time = created_time
         self.n_branche = n_branche
-        self.is_check = False
-        
-    def check(self, actual_time):
-        if not self.is_check:
-            swallet = self.sender.wallet[-1][1]
-            rwallet = self.receiver.wallet[-1][1]
-            if swallet - self.montant >= 0:
-                self.sender.wallet.append((actual_time, swallet - self.montant))
-                self.receiver.wallet.append((actual_time, rwallet + self.montant))
-                self.is_check = True
-                return True
-            return False
+
+    def check(t1,t2, tangle):
+        node_to_visit = [t1,t2]
+        visited_node = dict()
+        visited_node[t1] = None
+        visited_node[t2] = None
+        while len(node_to_visit) != 0:
+            current_node = node_to_visit.pop(0)
+            neighbors = list(tangle.G[current_node])
+            for neighbor in neighbors:
+                if not(neighbor in visited_node):
+                    node_to_visit.append(neighbor)
+                    visited_node[neighbor] = None
+
+        users_wallet = {key: parameters['init wallet'] for key in tangle.users}
+        users_wallet[tangle.genesis.sender] = 0
+
+        for t in visited_node:
+            users_wallet[t.sender]-=t.montant
+            users_wallet[t.receiver]+=t.montant
+            if users_wallet[t.sender]<0:
+                return False
         return True
 
 
