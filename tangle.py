@@ -291,7 +291,7 @@ class Tangle:
                 color="red"
             else:
                 color="blue"
-            G.add_node(node.id, mass=5,color=color, label=node.created_time)
+            G.add_node(node.id, mass=5,color=color, label=node.created_time, value=node.confidence_rate, title=node.confidence_rate.__str__())
 
         for edge in self.G.edges():
             G.add_edge(source=edge[0].id, to=edge[1].id)
