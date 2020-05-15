@@ -5,7 +5,7 @@ import numpy as np
 from user import *
 from transaction import *
 from settings import parameters
-
+from pyvis.network import Network
 
 
 class Tangle:
@@ -279,3 +279,18 @@ class Tangle:
         nx.draw_networkx(self.G,position,node_size=size,node_color=color,node_shape='s',vmin=0,vmax=1)
         plt.xlabel("time")
         plt.grid(True, linestyle='--')
+
+        G = Network(height='600px', width='1000px', directed=True)
+        count = 1
+        for node in self.G:
+            node.id = count
+            count += 1
+
+        for node in self.G:
+            G.add_node(node.id, mass=5)
+
+        for edge in self.G.edges():
+            G.add_edge(source=edge[0].id, to=edge[1].id)
+        G.show_buttons(filter_=['physics'])
+
+        G.show("graphe.html")
