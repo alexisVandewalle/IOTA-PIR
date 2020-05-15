@@ -287,7 +287,11 @@ class Tangle:
             count += 1
 
         for node in self.G:
-            G.add_node(node.id, mass=5)
+            if self.is_tips(node, parameters['total time']+2*parameters['h']):
+                color="red"
+            else:
+                color="blue"
+            G.add_node(node.id, mass=5,color=color, label=node.created_time)
 
         for edge in self.G.edges():
             G.add_edge(source=edge[0].id, to=edge[1].id)
