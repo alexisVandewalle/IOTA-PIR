@@ -3,7 +3,7 @@ simulation_type = "split"
 parameters_classic = {
     "h":1,
     "rate":3,
-    "alpha":0.001,
+    "alpha":0.01,
     "pas":0.5,
     "total time":50,
     "algo":"BRW",
@@ -14,7 +14,7 @@ parameters_classic = {
 
 parameters_split = {
     "h": 1,
-    "rate": 10,
+    "rate": 3,
     "alpha": 0.001,
     "pas": 1,
     "total time": 50,

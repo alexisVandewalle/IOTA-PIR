@@ -4,7 +4,7 @@ from simulation import *
 
 
 #simulation
-simulation = Simulation()
+simulation = SimulationSplit()
 
 duree=time()
 tangle = simulation.simulate()

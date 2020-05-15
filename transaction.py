@@ -32,12 +32,20 @@ class Transaction:
                     node_to_visit.append(neighbor)
                     visited_node[neighbor] = None
 
-        users_wallet = {key: parameters['init wallet'] for key in tangle.users}
+        users_wallet = dict()
         users_wallet[tangle.genesis.sender] = 0
 
         for t in visited_node:
-            users_wallet[t.sender]-=t.montant
-            users_wallet[t.receiver]+=t.montant
+            if t.sender in users_wallet:
+                users_wallet[t.sender]-=t.montant
+            else:
+                users_wallet[t.sender] = parameters['init wallet'] - t.montant
+
+            if t.receiver in users_wallet:
+                users_wallet[t.receiver]+=t.montant
+            else:
+                users_wallet[t.receiver] = parameters['init wallet'] + t.montant
+
             if users_wallet[t.sender]<0:
                 return False
         return True
