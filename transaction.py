@@ -20,6 +20,16 @@ class Transaction:
         self.confidence_rate =0
 
     def check(t1,t2, tangle):
+        """
+        Cette fonction vérifie si deux transactions sont valides ou non.
+        Pour cela, la fonction recense toutes les transactions indirectement validé par les deux transactions, puis
+        vérifie que tous les utilisateurs possède bien un porte monnaie positif. Si ce n'est pas le cas, la fonction
+        , il y a un conflit dans l'arbre et la fonction renvoie false.
+        :param t1: transaction 1
+        :param t2: transaction 2
+        :param tangle: le tangle
+        :return:
+        """
         node_to_visit = [t1,t2]
         visited_node = dict()
         visited_node[t1] = None
