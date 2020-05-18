@@ -19,14 +19,20 @@ class Tangle:
         Cette fonction créé le tangle en créant une transaction racine
         """
         self.genesis = Genesis(MasterUser())
-        self.G=nx.DiGraph()
+        self.G=nx.DiGraph()                 # le tangle qui référence toutes les transactions
         self.G.add_node(self.genesis)
-        self.graph_path=nx.DiGraph()
+        self.graph_path=nx.DiGraph()        # le graphe dirigé contenant toutes les transactions avec des chemins inversés
         self.graph_path.add_node(self.genesis)
         self.users = users
 
 
     def is_tips(self,node,actual_time):
+        """
+        Cette fonction permet de savoir si un noeud est un tips a un instant donné
+        :param node:
+        :param actual_time:
+        :return: True si c'est le cas, False sinon
+        """
         list_neighbors=list(self.graph_path[node])
         for neighbor in list_neighbors:
             if neighbor.is_visible(actual_time):
@@ -35,7 +41,12 @@ class Tangle:
 
 
     def remove_branch(self, node,actual_time):
-
+        """
+        Cette fonction permet de supprimer une branche partant d'un noeud du graphe
+        :param node:
+        :param actual_time:
+        :return:
+        """
         node_to_visit = [node]
         visited_node = dict()
         visited_node[node] = None
@@ -54,20 +65,15 @@ class Tangle:
         
         self.G.remove_nodes_from(visited_node)
         self.graph_path.remove_nodes_from(visited_node)
-        
 
-
-    def check_transactions(self, time):
-        wrong_node = []
-        for node in self.G:
-            if node.check_transaction(time) == False:
-                wrong_node.append(node)
-
-        for node in wrong_node:
-            if node in self.G: #le fait d'enlever des branches peut enlever d'autres noeuds
-                self.remove_branch(node,time)
 
     def copy(tangle,users):
+        """
+        Cette fonction créé une copie du tangle passer en parametre avec pour utilisateur ceux passe en parametre.
+        Les transactions restent les memes objets que dans le tangle copié
+        :param users: les utilisateurs contenus dans le nouveau tangle
+        :return: la copie du tangle
+        """
         new = Tangle(users)
         new.genesis = tangle.genesis
         new.G = tangle.G.copy()
@@ -139,8 +145,8 @@ class Tangle:
         
         for node in self.G:
             self.compute_cumulative_weight(node,actual_time)
-         
-                
+
+
     def URW(self,actual_time):
         """
         Cette fonction selectionne un tips visible dans le tangle en realisant
@@ -157,7 +163,7 @@ class Tangle:
             current_node=list_neighbor[rd_index]
         
         return current_node
-    
+
 
     def BRW(self,actual_time):
         """
@@ -230,18 +236,34 @@ class Tangle:
             self.graph_path.add_edge(t2,t)
         
     def split(tangle, users1, users2):
+        """
+        Cette fonction renvoie deux tangle, l'un contenant les utilisateur users1, l'autre les users2.
+        Les deux tangle sont des copies de celui passé en paramètre contenant les memes objets transactions
+        :param users1:
+        :param users2:
+        :return:
+        """
         tangle1 = Tangle.copy(tangle,users1)
         tangle2 = tangle
         tangle2.users = users2
         return tangle1,tangle2
         
     def join(tangle1, tangle2):
+        """
+        Cette fonction permet de fusionner deux tangle ayant subit un spit
+        """
         tangle1.users = tangle1.users + tangle2.users
         tangle1.G.add_edges_from(tangle2.G.edges)
         tangle1.graph_path.add_edges_from(tangle2.graph_path.edges)
         return tangle1
 
     def compute_confidence_rate(self,actual_time):
+        """
+        Cette fonction calcule pour chaque transaction, le taux de confiance qui lui correspond en computant 100
+        fois l'agorithme BRW et en comptant le nombre de fois ou il passe par chaque noeud
+        :param actual_time:
+        :return:
+        """
         for transaction in self.G:
             transaction.confidence_rate=0
 
@@ -253,7 +275,8 @@ class Tangle:
 
     def display(self):
         """
-        affiche l'ensemble du tangle.
+        affiche l'ensemble du tangle. Il y a deux affichages differents, l'un sous matplotlib, l'autre dynamique,
+        sous forme d'une page html.
         """
         self.computeGlobalWeight(parameters['total time']+2*parameters['h'])
         self.compute_confidence_rate(parameters['total time']+2*parameters['h'])
